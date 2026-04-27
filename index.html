@@ -17,36 +17,38 @@
     <div id="msg" class="status">Menunggu Scan...</div>
 
     <script>
-       async function process(e) {
+       // Fungsi global untuk menerima data dari Google
+function handleResponse(data) {
+    const msg = document.getElementById('msg');
+    const bg = document.getElementById('bg');
+    
+    msg.innerText = data.pesan;
+    if (data.status === "success") bg.className = "success";
+    else if (data.status === "warning") bg.className = "warning";
+    else bg.className = "error";
+
+    // Hapus script yang tadi dibuat agar tidak menumpuk di memori
+    const oldScript = document.getElementById('api-script');
+    if (oldScript) oldScript.remove();
+}
+
+function process(e) {
     if (e.key === "Enter") {
         const inputField = document.getElementById('rfid');
         const id = inputField.value;
         const msg = document.getElementById('msg');
-        const bg = document.getElementById('bg');
-        const url = "https://script.google.com/macros/s/AKfycbyEgX43-ceNC_Ytx0tylPsFrzeCUi0-hrvsoZsnDExRbCCLowOY_53V8z3gKB8pAePr/exec"; // Ganti dengan URL hasil Deploy barusan
+        const url = "URL_WEB_APP_GOOGLE_ANDA";
 
         if (!id) return;
         msg.innerText = "Memproses...";
         inputField.value = ""; 
 
-        try {
-            const response = await fetch(`${url}?id=${encodeURIComponent(id)}`, {
-                method: 'GET'
-            });
-            
-            // Mengambil JSON dari server
-            const data = await response.json();
-            
-            msg.innerText = data.pesan;
-            if (data.status === "success") bg.className = "success";
-            else if (data.status === "warning") bg.className = "warning";
-            else bg.className = "error";
+        // Buat elemen script baru untuk memanggil API (Teknik JSONP)
+        const script = document.createElement('script');
+        script.id = 'api-script';
+        script.src = `${url}?id=${encodeURIComponent(id)}&callback=handleResponse`;
+        document.body.appendChild(script);
 
-        } catch (error) {
-            console.error(error);
-            msg.innerText = "Koneksi Bermasalah";
-            bg.className = "error";
-        }
         inputField.focus();
     }
 }
