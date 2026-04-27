@@ -17,7 +17,7 @@
     <div id="msg" class="status">Menunggu Scan...</div>
 
     <script>
-       // Fungsi global untuk menerima data dari Google
+       // 1. Fungsi penangkap harus ada di scope global (paling luar)
 function handleResponse(data) {
     const msg = document.getElementById('msg');
     const bg = document.getElementById('bg');
@@ -27,8 +27,8 @@ function handleResponse(data) {
     else if (data.status === "warning") bg.className = "warning";
     else bg.className = "error";
 
-    // Hapus script yang tadi dibuat agar tidak menumpuk di memori
-    const oldScript = document.getElementById('api-script');
+    // Bersihkan elemen script setelah selesai
+    const oldScript = document.getElementById('api-call');
     if (oldScript) oldScript.remove();
 }
 
@@ -37,18 +37,18 @@ function process(e) {
         const inputField = document.getElementById('rfid');
         const id = inputField.value;
         const msg = document.getElementById('msg');
-        const url = "https://script.google.com/macros/s/AKfycbwhi9P1r6xXTcvVLgStRGSSFswyvf_-QLrNb1uohCZMitOvUy5r5ZVVNvAfaNAgUi5s/exec";
+        const url = "URL_WEB_APP_BARU_ANDA"; // Masukkan URL hasil deploy terakhir
 
         if (!id) return;
         msg.innerText = "Memproses...";
-        inputField.value = ""; 
-
-        // Buat elemen script baru untuk memanggil API (Teknik JSONP)
+        
+        // 2. Teknik JSONP Injection (Pasti lolos ORB)
         const script = document.createElement('script');
-        script.id = 'api-script';
-        script.src = `${url}?id=${encodeURIComponent(id)}&callback=handleResponse`;
+        script.id = 'api-call';
+        script.src = `${url}?id=${encodeURIComponent(id)}&timestamp=${new Date().getTime()}`;
         document.body.appendChild(script);
 
+        inputField.value = ""; 
         inputField.focus();
     }
 }
