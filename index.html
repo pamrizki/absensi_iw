@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Absensi Acara Tahunan Indo World</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; transition: 0.3s; }
+        input { padding: 10px; font-size: 18px; width: 300px; text-align: center; }
+        .status { margin-top: 20px; font-size: 24px; font-weight: bold; }
+        .success { background-color: #d4edda; color: #155724; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body id="bg">
+    <h2>SILAHKAN SCAN KARTU</h2>
+    <input type="text" id="rfid" autofocus onkeypress="process(event)">
+    <div id="msg" class="status">Menunggu Scan...</div>
+
+    <script>
+       async function process(e) {
+    if (e.key === "Enter") {
+        const inputField = document.getElementById('rfid');
+        const id = inputField.value;
+        const msg = document.getElementById('msg');
+        const bg = document.getElementById('bg');
+        const url = "https://script.google.com/macros/s/AKfycbyEgX43-ceNC_Ytx0tylPsFrzeCUi0-hrvsoZsnDExRbCCLowOY_53V8z3gKB8pAePr/exec"; // Ganti dengan URL hasil Deploy barusan
+
+        if (!id) return;
+        msg.innerText = "Memproses...";
+        inputField.value = ""; 
+
+        try {
+            const response = await fetch(`${url}?id=${encodeURIComponent(id)}`, {
+                method: 'GET'
+            });
+            
+            // Mengambil JSON dari server
+            const data = await response.json();
+            
+            msg.innerText = data.pesan;
+            if (data.status === "success") bg.className = "success";
+            else if (data.status === "warning") bg.className = "warning";
+            else bg.className = "error";
+
+        } catch (error) {
+            console.error(error);
+            msg.innerText = "Koneksi Bermasalah";
+            bg.className = "error";
+        }
+        inputField.focus();
+    }
+}
+    </script>
+</body>
+</html>
